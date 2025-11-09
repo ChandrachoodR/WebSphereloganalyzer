@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSphere Log Analyser | Kyndryl AI @ LBG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="bg-slate-950 text-slate-100">
+    <div class="min-h-screen">
+      <header
+        class="border-b border-slate-800 bg-slate-900/70 backdrop-blur px-6 py-4"
+      >
+        <div class="max-w-6xl mx-auto flex flex-col gap-2">
+          <p class="text-sm uppercase tracking-[0.4em] text-slate-500">
+            Kyndryl AI @ LBG ( CTB Super Squad Innovation Team )
+          </p>
+          <h1 class="text-3xl font-semibold flex items-center gap-2">
+            WebSphere Log Analyser
+          </h1>
+          <p class="text-slate-400 max-w-3xl">
+            Upload <code class="text-emerald-300">messages.log</code> files,
+            slice through noisy events, and let Gemini explain the earliest and
+            most critical failures in plain English.
+          </p>
+        </div>
+      </header>
+
+      <main class="max-w-6xl mx-auto px-6 py-8 space-y-6">
+        <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+          <form id="uploadForm" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <label
+                for="logFile"
+                class="block text-sm font-medium text-slate-300 mb-2"
+              >
+                Upload WebSphere Liberty <code>messages.log</code>
+              </label>
+              <input
+                type="file"
+                id="logFile"
+                name="logFile"
+                accept=".log,.txt"
+                class="w-full rounded-xl border border-slate-700 bg-slate-900/80 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-emerald-500 file:text-slate-900 hover:file:bg-emerald-400 focus:ring-2 focus:ring-emerald-400"
+                required
+              />
+              <p class="text-xs text-slate-500 mt-2">
+                The parser understands standard Liberty timestamps, thread
+                identifiers, and severity markers (INFO, WARN, ERROR, FATAL,
+                DEBUG).
+              </p>
+            </div>
+            <div class="flex items-end">
+              <button
+                id="uploadBtn"
+                type="submit"
+                class="bg-emerald-500 text-slate-950 font-semibold px-6 py-3 rounded-xl hover:bg-emerald-400 transition disabled:opacity-50"
+              >
+                Analyze Logs
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="grid md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 space-y-4">
+            <div
+              id="statusMessage"
+              class="hidden text-sm px-4 py-3 rounded-xl border border-slate-800"
+            ></div>
+            <div
+              id="logBoard"
+              class="log-board bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4"
+            >
+              <div class="flex items-center justify-between gap-3 flex-wrap">
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-500">
+                  Log Explorer
+                </p>
+                <button
+                  id="logExpandBtn"
+                  type="button"
+                  class="text-xs font-semibold text-slate-300 hover:text-emerald-300 transition"
+                  aria-expanded="false"
+                >
+                  Expand
+                </button>
+              </div>
+              <div
+                class="flex flex-col lg:flex-row lg:items-center gap-4 justify-between"
+              >
+                <input
+                  id="searchInput"
+                  type="text"
+                  placeholder="Search across timestamp, severity, thread, or message"
+                  class="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm focus:ring-2 focus:ring-emerald-400"
+                />
+                <div
+                  id="severityFilters"
+                  class="flex flex-wrap gap-2"
+                  aria-label="Severity filters"
+                ></div>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button
+                  id="firstErrorBtn"
+                  class="px-4 py-2 rounded-xl bg-blue-500/90 text-sm font-semibold text-white hover:bg-blue-400/90"
+                >
+                  Jump to First Error
+                </button>
+                <button
+                  id="preErrorBtn"
+                  class="px-4 py-2 rounded-xl bg-purple-500/90 text-sm font-semibold text-white hover:bg-purple-400/90"
+                >
+                  Show Pre-Error Context
+                </button>
+              </div>
+              <div class="text-xs text-slate-400 space-y-2">
+                <p>Summary</p>
+                <div
+                  id="summaryBadges"
+                  class="flex flex-wrap gap-2 text-slate-200"
+                ></div>
+              </div>
+              <div class="log-table-container rounded-2xl border border-slate-800">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-900 sticky top-0 z-10">
+                    <tr class="text-left text-xs uppercase text-slate-400">
+                      <th class="py-3 px-3">Timestamp</th>
+                      <th class="py-3 px-3">Severity</th>
+                      <th class="py-3 px-3">Thread</th>
+                      <th class="py-3 px-3">Component</th>
+                      <th class="py-3 px-3">Message</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logTableBody" class="divide-y divide-slate-800">
+                    <!-- rows injected -->
+                  </tbody>
+                </table>
+                <div
+                  id="emptyState"
+                  class="text-center py-10 text-sm text-slate-500"
+                >
+                  Upload a log file to begin the analysis journey.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-lg">Log Details</h3>
+                <span
+                  class="text-xs uppercase tracking-widest text-slate-500"
+                >
+                  Inspector
+                </span>
+              </div>
+              <div id="logDetails" class="space-y-3 text-sm"></div>
+              <button
+                id="aiExplainBtn"
+                class="mt-4 w-full bg-emerald-500 text-slate-950 font-semibold px-4 py-2 rounded-xl disabled:opacity-60"
+                disabled
+              >
+                Explain with AI
+              </button>
+            </div>
+
+            <div
+              class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3"
+              id="aiInsightCard"
+            >
+              <div class="flex items-center justify-between">
+                <div class="space-y-1">
+                  <h3 class="font-semibold">AI Insight</h3>
+                  <span
+                    id="aiInsightStatus"
+                    class="text-xs uppercase tracking-widest text-emerald-300/80 hidden"
+                    >live</span
+                  >
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    id="aiInsightExpandBtn"
+                    type="button"
+                    class="text-xs font-semibold text-slate-300 hover:text-emerald-300 transition"
+                    aria-label="Expand AI insight"
+                  >
+                    Expand
+                  </button>
+                </div>
+              </div>
+              <div
+                id="aiExplanation"
+                class="ai-output text-sm text-slate-100"
+                aria-live="polite"
+              ></div>
+            </div>
+
+            <div
+              id="aiInsightModal"
+              class="fixed inset-0 bg-slate-950/80 backdrop-blur hidden items-center justify-center z-50 px-4"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="aiInsightModalTitle"
+            >
+              <div
+                class="max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-6 space-y-4"
+              >
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Gemini</p>
+                    <h3 id="aiInsightModalTitle" class="text-2xl font-semibold text-white">
+                      AI Insight
+                    </h3>
+                  </div>
+                  <button
+                    id="aiInsightModalClose"
+                    type="button"
+                    class="text-slate-300 hover:text-white text-sm font-semibold"
+                    aria-label="Close AI insight"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div
+                  id="aiExplanationModal"
+                  class="ai-output text-base text-slate-100 max-h-[60vh]"
+                ></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-semibold text-base">Pre-Error Timeline</h3>
+                <span class="text-xs text-slate-500">context window</span>
+              </div>
+              <ol id="preErrorList" class="space-y-3 text-sm"></ol>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div
+      id="logBoardOverlay"
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur hidden z-40"
+      aria-hidden="true"
+    ></div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
+
