@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 from typing import List, Tuple, Dict, Any
 
+# --- Severity normalization -----------------------------------------------
 SEVERITY_MAP = {
     "A": "INFO",
     "AUDIT": "INFO",
@@ -28,6 +29,7 @@ SEVERITY_MAP = {
     "TRACE": "TRACE",
 }
 
+# --- Regex templates for the most common Liberty log formats --------------
 LOG_PATTERNS = [
     re.compile(
         r"""
@@ -64,6 +66,7 @@ $""",
 ]
 
 
+# --- Parsing helpers ------------------------------------------------------
 def normalize_severity(code: str) -> str:
     return SEVERITY_MAP.get(code.upper(), code.upper())
 

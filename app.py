@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from parser.log_parser import parse_logs, find_first_error_context
 
+# --- Environment & optional Gemini SDK bootstrap --------------------------------
 load_dotenv()
 
 app = Flask(__name__)
@@ -74,6 +75,7 @@ def build_summary(logs):
     return summary
 
 
+# --- Web routes ---------------------------------------------------------------
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -98,6 +100,7 @@ def analyze():
     return jsonify(response_body)
 
 
+# --- AI explanation endpoint delegates to Gemini when configured ------------
 @app.route("/ai_explain", methods=["POST"])
 def ai_explain():
     payload = request.get_json(silent=True) or {}

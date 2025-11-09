@@ -1,3 +1,4 @@
+// --- App state & base configuration ----------------------------------------
 const DEFAULT_SEVERITIES = ["FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"];
 
 const state = {
@@ -18,6 +19,7 @@ const toneStyles = {
   error: "bg-rose-500/10 text-rose-200 border border-rose-500/60",
 };
 
+// Cache all DOM handles up front so the rest of the file can stay lean.
 const elements = {
   form: document.getElementById("uploadForm"),
   fileInput: document.getElementById("logFile"),
@@ -45,6 +47,7 @@ const elements = {
   emptyState: document.getElementById("emptyState"),
 };
 
+// --- Body scroll locking shared by overlays -------------------------------
 let bodyLockCount = 0;
 
 function lockBodyScroll() {
@@ -61,6 +64,7 @@ function unlockBodyScroll() {
   }
 }
 
+// --- AI explanation formatting helpers ------------------------------------
 function escapeHtml(text = "") {
   return text
     .replace(/&/g, "&amp;")
@@ -175,6 +179,7 @@ function handleAiModalBackground(event) {
   }
 }
 
+// --- Log board expansion helpers ------------------------------------------
 function isLogBoardExpanded() {
   return elements.logBoard?.classList.contains("log-board--expanded");
 }
@@ -200,6 +205,7 @@ function setLogBoardExpanded(expanded) {
   }
 }
 
+// --- UI rendering & state wiring -------------------------------------------
 function setStatus(message, tone = "info") {
   if (!elements.statusMessage) return;
   elements.statusMessage.textContent = message || "";
@@ -503,6 +509,7 @@ async function handleAiExplain() {
   }
 }
 
+// --- Event wiring ---------------------------------------------------------
 function initEventListeners() {
   elements.form?.addEventListener("submit", handleUpload);
   elements.searchInput?.addEventListener("input", (event) => {

@@ -15,6 +15,7 @@
       <header
         class="border-b border-slate-800 bg-slate-900/70 backdrop-blur px-6 py-4"
       >
+        <!-- Hero branding -->
         <div class="max-w-6xl mx-auto flex flex-col gap-2">
           <p class="text-sm uppercase tracking-[0.4em] text-slate-500">
             Kyndryl AI @ LBG ( CTB Super Squad Innovation Team )
@@ -31,6 +32,7 @@
       </header>
 
       <main class="max-w-6xl mx-auto px-6 py-8 space-y-6">
+        <!-- Upload / controls -->
         <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
           <form id="uploadForm" class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
@@ -66,6 +68,7 @@
           </form>
         </section>
 
+        <!-- Two-column analysis surface -->
         <section class="grid md:grid-cols-3 gap-6">
           <div class="md:col-span-2 space-y-4">
             <div
@@ -150,6 +153,7 @@
             </div>
           </div>
 
+          <!-- Inspector + AI panels -->
           <div class="space-y-4">
             <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5">
               <div class="flex items-center justify-between mb-3">
@@ -170,6 +174,7 @@
               </button>
             </div>
 
+            <!-- AI insight card -->
             <div
               class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-3"
               id="aiInsightCard"
@@ -201,6 +206,7 @@
               ></div>
             </div>
 
+            <!-- Expanded AI insight modal -->
             <div
               id="aiInsightModal"
               class="fixed inset-0 bg-slate-950/80 backdrop-blur hidden items-center justify-center z-50 px-4"
@@ -245,6 +251,7 @@
         </section>
       </main>
     </div>
+    <!-- Log board overlay for expanded view -->
     <div
       id="logBoardOverlay"
       class="fixed inset-0 bg-slate-950/70 backdrop-blur hidden z-40"
